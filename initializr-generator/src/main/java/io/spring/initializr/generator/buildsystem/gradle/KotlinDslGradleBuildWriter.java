@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.spring.initializr.generator.buildsystem.BillOfMaterials;
+import io.spring.initializr.generator.buildsystem.BuildSystem;
 import io.spring.initializr.generator.buildsystem.Dependency;
 import io.spring.initializr.generator.buildsystem.Dependency.Exclusion;
 import io.spring.initializr.generator.buildsystem.MavenRepository;
@@ -135,8 +136,9 @@ public class KotlinDslGradleBuildWriter extends GradleBuildWriter {
 	protected void writeDependency(IndentingWriter writer, Dependency dependency) {
 		String version = determineVersion(dependency.getVersion());
 		String type = dependency.getType();
-		writer.print(configurationForScope(dependency.getScope()) + "(\""
-				+ dependency.getGroupId() + ":" + dependency.getArtifactId()
+		writer.print(dependency.resolveEffectiveScope(
+				BuildSystem.forId(GradleBuildSystem.ID), this::configurationForScope)
+				+ "(\"" + dependency.getGroupId() + ":" + dependency.getArtifactId()
 				+ ((version != null) ? ":" + version : "")
 				+ ((type != null) ? "@" + type : "") + "\")");
 		if (!dependency.getExclusions().isEmpty()) {

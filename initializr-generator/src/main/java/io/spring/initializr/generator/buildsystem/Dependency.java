@@ -17,9 +17,12 @@
 package io.spring.initializr.generator.buildsystem;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 import io.spring.initializr.generator.version.VersionReference;
 
@@ -40,6 +43,8 @@ public class Dependency {
 	private final VersionReference version;
 
 	private final DependencyScope scope;
+
+	private final Map<String, String> customizedScope = new HashMap<>();
 
 	private final String type;
 
@@ -106,6 +111,19 @@ public class Dependency {
 	 */
 	public Set<Exclusion> getExclusions() {
 		return this.exclusions;
+	}
+
+	public String resolveEffectiveScope(BuildSystem buildSystem,
+			Function<DependencyScope, String> defaultResolution) {
+		return this.customizedScope.getOrDefault(buildSystem.id(),
+				defaultResolution.apply(this.getScope()));
+	}
+
+	public void customizeScopeResolution(BuildSystem buildSystem, String customScope) {
+		Assert.notNull(buildSystem, "buildSystem should not be null");
+		Assert.notNull(buildSystem.id(), "buildSystem.id() should not be null");
+
+		this.customizedScope.put(buildSystem.id(), customScope);
 	}
 
 	/**

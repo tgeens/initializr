@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 import io.spring.initializr.generator.buildsystem.BillOfMaterials;
+import io.spring.initializr.generator.buildsystem.BuildSystem;
 import io.spring.initializr.generator.buildsystem.Dependency;
 import io.spring.initializr.generator.buildsystem.Dependency.Exclusion;
 import io.spring.initializr.generator.buildsystem.MavenRepository;
@@ -130,7 +131,8 @@ public class GroovyDslGradleBuildWriter extends GradleBuildWriter {
 		String version = determineVersion(dependency.getVersion());
 		String type = dependency.getType();
 		boolean hasExclusions = !dependency.getExclusions().isEmpty();
-		writer.print(configurationForScope(dependency.getScope()));
+		writer.print(dependency.resolveEffectiveScope(
+				BuildSystem.forId(GradleBuildSystem.ID), this::configurationForScope));
 		writer.print((hasExclusions) ? "(" : " ");
 		writer.print(quoteStyle + dependency.getGroupId() + ":"
 				+ dependency.getArtifactId() + ((version != null) ? ":" + version : "")
