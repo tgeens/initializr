@@ -54,14 +54,14 @@ public class MultipleResourcesProjectContributor implements ProjectContributor {
 		Resource root = this.resolver.getResource(this.rootResource);
 		Resource[] resources = this.resolver.getResources(this.rootResource + "/**");
 		for (Resource resource : resources) {
-			String filename = resource.getURI().toString().substring(root.getURI().toString().length() + 1);
+			String relativePath = root.getURI().relativize(resource.getURI()).toString();
 			if (resource.isReadable()) {
-				Path output = projectRoot.resolve(filename);
+				Path output = projectRoot.resolve(relativePath);
 				Files.createDirectories(output.getParent());
 				Files.createFile(output);
 				FileCopyUtils.copy(resource.getInputStream(), Files.newOutputStream(output));
 				// TODO Set executable using NIO
-				output.toFile().setExecutable(this.executable.test(filename));
+				output.toFile().setExecutable(this.executable.test(relativePath));
 			}
 		}
 	}
